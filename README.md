@@ -59,6 +59,10 @@ Secrets esperados:
 
 - `AZURE_CREDENTIALS`
 - `AZURE_FUNCTIONAPP_NAME`
+- `DATABASE_URL`
+- `CPF_JWT_SECRET`
+- `JWT_SECRET`
+- `PG_SSL`
 
 ## Swagger / Postman
 
@@ -66,4 +70,4 @@ Secrets esperados:
 
 ## Observacao
 
-As variaveis de ambiente da Function App devem ser configuradas no proprio Azure Function App.
+A pipeline cria a Function App automaticamente, se ela ainda nao existir, e sincroniza as app settings a partir dos secrets do repositorio.
