@@ -67,6 +67,7 @@ Secrets esperados:
 ## Swagger / Postman
 
 - [Contrato OpenAPI do endpoint](docs/openapi.yaml)
+- Endpoint publicado: `https://mechcraft-cpf-auth-2583.azurewebsites.net/auth/cpf/token`
 
 ## Observacao
 
