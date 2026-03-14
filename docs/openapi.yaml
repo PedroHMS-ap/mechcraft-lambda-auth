@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: MechCraft CPF Auth Lambda
+  title: MechCraft CPF Auth Azure Function
   version: 1.0.0
   description: Contrato do endpoint serverless responsavel por autenticar clientes via CPF.
 paths:

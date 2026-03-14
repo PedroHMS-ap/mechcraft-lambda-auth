@@ -28,19 +28,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm install --omit=dev
-      - name: Package Lambda
-        run: zip -r lambda.zip src package.json node_modules
-      - uses: aws-actions/configure-aws-credentials@v4
+      - run: npm install
+      - uses: azure/login@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - name: Deploy homolog
-        run: |
-          aws lambda update-function-code \
-            --function-name "${{ secrets.AWS_LAMBDA_CPF_AUTH_NAME }}" \
-            --zip-file fileb://lambda.zip
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
+          package: .
 
   deploy-production:
     if: github.event_name == 'push' && github.ref_name == 'main'
@@ -52,16 +47,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm install --omit=dev
-      - name: Package Lambda
-        run: zip -r lambda.zip src package.json node_modules
-      - uses: aws-actions/configure-aws-credentials@v4
+      - run: npm install
+      - uses: azure/login@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - name: Deploy production
-        run: |
-          aws lambda update-function-code \
-            --function-name "${{ secrets.AWS_LAMBDA_CPF_AUTH_NAME }}" \
-            --zip-file fileb://lambda.zip
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
+          package: .

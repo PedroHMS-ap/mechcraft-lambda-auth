@@ -1,0 +1,11 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "DATABASE_URL": "postgresql://usuario:senha@host:5432/mechcraft",
+    "CPF_JWT_SECRET": "change-me",
+    "CPF_JWT_EXPIRES_IN": "1h",
+    "PG_SSL": "require"
+  }
+}

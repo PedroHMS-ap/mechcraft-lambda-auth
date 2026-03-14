@@ -1,25 +1,26 @@
-# MechCraft Lambda CPF Auth
+# MechCraft Azure Function CPF Auth
 
-Repositorio dedicado a function serverless responsavel por autenticar clientes via CPF antes do acesso as rotas protegidas.
+Repositorio dedicado a Azure Function serverless responsavel por autenticar clientes via CPF antes do acesso as rotas protegidas.
 
 ## Tecnologias
 
 - Node.js 20
-- AWS Lambda
+- Azure Functions
 - PostgreSQL
 - JWT
 - GitHub Actions
 
 ## Estrutura
 
-- `src/handler.js`: entrada principal da function.
+- `src/handler.js`: logica principal de autenticacao.
+- `src/functions/cpf-token/index.js`: adaptador HTTP para Azure Functions.
 - `src/cpf-validator.js`: validacao e normalizacao de CPF.
 - `docs/openapi.yaml`: contrato da API de autenticacao.
 - `.github/workflows/ci-cd.yml`: pipeline de teste e deploy.
 
 ## Arquitetura
 
-- [Diagrama da Lambda](docs/ARCHITECTURE.md)
+- [Diagrama da Function](docs/ARCHITECTURE.md)
 
 ## Variaveis de ambiente
 
@@ -34,7 +35,13 @@ Repositorio dedicado a function serverless responsavel por autenticar clientes v
 npm install
 ```
 
-Dispare a function com um evento JSON semelhante a:
+Para rodar localmente no Azure Functions Core Tools, crie `local.settings.json` com os mesmos valores de `.env.example` e execute:
+
+```powershell
+func start
+```
+
+Se quiser testar a logica sem o host da Azure Function, dispare o handler com um evento JSON semelhante a:
 
 ```json
 {
@@ -50,10 +57,8 @@ Dispare a function com um evento JSON semelhante a:
 
 Secrets esperados:
 
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `AWS_REGION`
-- `AWS_LAMBDA_CPF_AUTH_NAME`
+- `AZURE_CREDENTIALS`
+- `AZURE_FUNCTIONAPP_NAME`
 
 ## Swagger / Postman
 
@@ -61,4 +66,4 @@ Secrets esperados:
 
 ## Observacao
 
-As variaveis de ambiente da Lambda devem ser configuradas no proprio provedor cloud ou por um passo adicional de `update-function-configuration`.
+As variaveis de ambiente da Function App devem ser configuradas no proprio Azure Function App.
