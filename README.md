@@ -35,7 +35,7 @@ Repositorio dedicado a Azure Function serverless responsavel por autenticar clie
 npm install
 ```
 
-Para rodar localmente no Azure Functions Core Tools, crie `local.settings.json` com os mesmos valores de `.env.example` e execute:
+Para rodar localmente no Azure Functions Core Tools, crie `local.settings.json` com base em `local.settings.example.json` e execute:
 
 ```powershell
 func start
