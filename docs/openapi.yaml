@@ -1,0 +1,48 @@
+openapi: 3.0.3
+info:
+  title: MechCraft CPF Auth Lambda
+  version: 1.0.0
+  description: Contrato do endpoint serverless responsavel por autenticar clientes via CPF.
+paths:
+  /auth/cpf/token:
+    post:
+      summary: Gerar token JWT a partir do CPF
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cpf]
+              properties:
+                cpf:
+                  type: string
+                  example: "11144477735"
+      responses:
+        "200":
+          description: Token emitido com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                    example: Bearer
+                  customer:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      cpf:
+                        type: string
+                      status:
+                        type: string
+        "400":
+          description: CPF invalido
+        "403":
+          description: Cliente inativo
+        "404":
+          description: Cliente nao encontrado

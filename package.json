@@ -1,0 +1,15 @@
+{
+  "name": "mechcraft-lambda-cpf-auth",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/handler.js",
+  "scripts": {
+    "lint": "node -e \"console.log('No lint configured')\"",
+    "test": "node -e \"const m=require('./src/cpf-validator'); if(!m.isValidCpf('11144477735')) process.exit(1); console.log('ok')\""
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1"
+  }
+}
+
