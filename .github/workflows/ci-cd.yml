@@ -19,7 +19,7 @@ jobs:
       - run: npm test
 
   deploy-homolog:
-    if: github.event_name == 'push' && github.ref_name == 'homolog'
+    if: github.event_name != 'pull_request' && github.ref_name == 'homolog'
     needs: test
     runs-on: ubuntu-latest
     environment: homolog
@@ -91,7 +91,7 @@ jobs:
           package: .
 
   deploy-production:
-    if: github.event_name == 'push' && github.ref_name == 'main'
+    if: github.event_name != 'pull_request' && github.ref_name == 'main'
     needs: test
     runs-on: ubuntu-latest
     environment: production
