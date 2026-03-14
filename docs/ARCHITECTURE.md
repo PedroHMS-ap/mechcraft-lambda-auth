@@ -1,12 +1,12 @@
-# Arquitetura Da Lambda De CPF
+# Arquitetura Da Azure Function De CPF
 
 ```mermaid
 flowchart LR
   Cliente --> Gateway[API Gateway / Traefik]
-  Gateway --> Lambda[Lambda CPF Auth]
-  Lambda --> Validator[Validador de CPF]
-  Lambda --> Postgres[(PostgreSQL gerenciado)]
-  Lambda --> JWT[Geracao de JWT]
+  Gateway --> Function[Azure Function CPF Auth]
+  Function --> Validator[Validador de CPF]
+  Function --> Postgres[(PostgreSQL gerenciado)]
+  Function --> JWT[Geracao de JWT]
   JWT --> Cliente
 ```
 

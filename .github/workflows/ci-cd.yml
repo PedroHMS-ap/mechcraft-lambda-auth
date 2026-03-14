@@ -23,45 +23,141 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     environment: homolog
+    env:
+      FUNCTION_RESOURCE_GROUP: mechcraft-serverless-rg
+      FUNCTION_LOCATION: centralus
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm install --omit=dev
-      - name: Package Lambda
-        run: zip -r lambda.zip src package.json node_modules
-      - uses: aws-actions/configure-aws-credentials@v4
+      - run: npm install
+      - uses: azure/login@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - name: Deploy homolog
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Ensure Function App infrastructure
+        shell: bash
+        env:
+          FUNCTIONAPP_NAME: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
         run: |
-          aws lambda update-function-code \
-            --function-name "${{ secrets.AWS_LAMBDA_CPF_AUTH_NAME }}" \
-            --zip-file fileb://lambda.zip
+          STORAGE_BASE="$(echo "${FUNCTIONAPP_NAME}" | tr -cd 'a-z0-9' | cut -c1-18)"
+          STORAGE_NAME="${STORAGE_BASE}func"
+          STORAGE_NAME="$(echo "${STORAGE_NAME}" | cut -c1-24)"
+
+          az group create --name "${FUNCTION_RESOURCE_GROUP}" --location "${FUNCTION_LOCATION}"
+
+          if ! az storage account show --resource-group "${FUNCTION_RESOURCE_GROUP}" --name "${STORAGE_NAME}" >/dev/null 2>&1; then
+            az storage account create \
+              --resource-group "${FUNCTION_RESOURCE_GROUP}" \
+              --name "${STORAGE_NAME}" \
+              --location "${FUNCTION_LOCATION}" \
+              --sku Standard_LRS \
+              --allow-blob-public-access false
+          fi
+
+          if ! az functionapp show --resource-group "${FUNCTION_RESOURCE_GROUP}" --name "${FUNCTIONAPP_NAME}" >/dev/null 2>&1; then
+            az functionapp create \
+              --resource-group "${FUNCTION_RESOURCE_GROUP}" \
+              --consumption-plan-location "${FUNCTION_LOCATION}" \
+              --name "${FUNCTIONAPP_NAME}" \
+              --storage-account "${STORAGE_NAME}" \
+              --runtime node \
+              --runtime-version 20 \
+              --functions-version 4 \
+              --os-type Linux
+          fi
+      - name: Configure Function App settings
+        shell: bash
+        env:
+          FUNCTIONAPP_NAME: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          CPF_JWT_SECRET: ${{ secrets.CPF_JWT_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PG_SSL: ${{ secrets.PG_SSL }}
+        run: |
+          az functionapp config appsettings set \
+            --resource-group "${FUNCTION_RESOURCE_GROUP}" \
+            --name "${FUNCTIONAPP_NAME}" \
+            --settings \
+              FUNCTIONS_WORKER_RUNTIME=node \
+              WEBSITE_RUN_FROM_PACKAGE=1 \
+              DATABASE_URL="${DATABASE_URL}" \
+              CPF_JWT_SECRET="${CPF_JWT_SECRET}" \
+              JWT_SECRET="${JWT_SECRET}" \
+              PG_SSL="${PG_SSL}"
+      - uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
+          package: .
 
   deploy-production:
     if: github.event_name == 'push' && github.ref_name == 'main'
     needs: test
     runs-on: ubuntu-latest
     environment: production
+    env:
+      FUNCTION_RESOURCE_GROUP: mechcraft-serverless-rg
+      FUNCTION_LOCATION: centralus
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm install --omit=dev
-      - name: Package Lambda
-        run: zip -r lambda.zip src package.json node_modules
-      - uses: aws-actions/configure-aws-credentials@v4
+      - run: npm install
+      - uses: azure/login@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - name: Deploy production
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Ensure Function App infrastructure
+        shell: bash
+        env:
+          FUNCTIONAPP_NAME: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
         run: |
-          aws lambda update-function-code \
-            --function-name "${{ secrets.AWS_LAMBDA_CPF_AUTH_NAME }}" \
-            --zip-file fileb://lambda.zip
+          STORAGE_BASE="$(echo "${FUNCTIONAPP_NAME}" | tr -cd 'a-z0-9' | cut -c1-18)"
+          STORAGE_NAME="${STORAGE_BASE}func"
+          STORAGE_NAME="$(echo "${STORAGE_NAME}" | cut -c1-24)"
+
+          az group create --name "${FUNCTION_RESOURCE_GROUP}" --location "${FUNCTION_LOCATION}"
+
+          if ! az storage account show --resource-group "${FUNCTION_RESOURCE_GROUP}" --name "${STORAGE_NAME}" >/dev/null 2>&1; then
+            az storage account create \
+              --resource-group "${FUNCTION_RESOURCE_GROUP}" \
+              --name "${STORAGE_NAME}" \
+              --location "${FUNCTION_LOCATION}" \
+              --sku Standard_LRS \
+              --allow-blob-public-access false
+          fi
+
+          if ! az functionapp show --resource-group "${FUNCTION_RESOURCE_GROUP}" --name "${FUNCTIONAPP_NAME}" >/dev/null 2>&1; then
+            az functionapp create \
+              --resource-group "${FUNCTION_RESOURCE_GROUP}" \
+              --consumption-plan-location "${FUNCTION_LOCATION}" \
+              --name "${FUNCTIONAPP_NAME}" \
+              --storage-account "${STORAGE_NAME}" \
+              --runtime node \
+              --runtime-version 20 \
+              --functions-version 4 \
+              --os-type Linux
+          fi
+      - name: Configure Function App settings
+        shell: bash
+        env:
+          FUNCTIONAPP_NAME: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          CPF_JWT_SECRET: ${{ secrets.CPF_JWT_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PG_SSL: ${{ secrets.PG_SSL }}
+        run: |
+          az functionapp config appsettings set \
+            --resource-group "${FUNCTION_RESOURCE_GROUP}" \
+            --name "${FUNCTIONAPP_NAME}" \
+            --settings \
+              FUNCTIONS_WORKER_RUNTIME=node \
+              WEBSITE_RUN_FROM_PACKAGE=1 \
+              DATABASE_URL="${DATABASE_URL}" \
+              CPF_JWT_SECRET="${CPF_JWT_SECRET}" \
+              JWT_SECRET="${JWT_SECRET}" \
+              PG_SSL="${PG_SSL}"
+      - uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
+          package: .
