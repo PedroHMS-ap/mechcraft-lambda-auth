@@ -13,7 +13,7 @@ Repositorio dedicado a Azure Function serverless responsavel por autenticar clie
 ## Estrutura
 
 - `src/handler.js`: logica principal de autenticacao.
-- `src/functions/cpf-token/index.js`: adaptador HTTP para Azure Functions.
+- `cpf-token/index.js`: adaptador HTTP para Azure Functions.
 - `src/cpf-validator.js`: validacao e normalizacao de CPF.
 - `docs/openapi.yaml`: contrato da API de autenticacao.
 - `.github/workflows/ci-cd.yml`: pipeline de teste e deploy.

@@ -1,4 +1,4 @@
-const { handler } = require('../../handler');
+const { handler } = require('../src/handler');
 
 function toEvent(req) {
   const body = req.body ?? (req.rawBody || {});
